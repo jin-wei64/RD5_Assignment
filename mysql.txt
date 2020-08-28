@@ -1,0 +1,8 @@
+create database netbank default character set uft8;
+create table users (userId int AUTO_INCREMENT PRIMARY key,userAccount varchar(15),userPassword varchar(15));
+create table record(recordID int AUTO_INCREMENT PRIMARY KEY,userID int,money int);
+
+alter table record add constraint fk_userID 
+foreign key (userID)references users (userID) 
+on update cascade
+on delete cascade;
