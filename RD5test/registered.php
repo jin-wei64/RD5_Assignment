@@ -1,20 +1,3 @@
-<?php
-    if(isset($_POST["registerBtn"])) {
-        $userAccount = $_POST["userAccount"];
-        $userPassword = $_POST["userPassword"];
-        $userName = $_POST["userName"];
-        $sql = "                     
-        insert into users(userAccount,userPassword,userName) 
-        values('$userAccount','$userPassword','$userName')
-        ";
-        require ("config.php");
-        mysqli_query($link, $sql);
-        header("location:index.php");
-    }
-    if (isset($_POST["login"])) {
-        header("location:index.php");
-    }
-?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -37,7 +20,7 @@
     </tr>
     <tr>
       <td width="80" align="center" valign="baseline">密碼</td>
-      <td valign="baseline"><input pattern= "[a-zA-Z0-9]{6,}" placeholder="6~12個英文或數字" type="password" name="userPassword" id="password" required /></td>
+      <td valign="baseline"><input pattern= "[a-zA-Z0-9]{6,}" placeholder="6~12個英文或數字"  type="password" name="userPassword" id="password" required /></td>
     </tr>
     <tr>
       <td width="80" align="center" valign="baseline">姓名</td>
@@ -45,7 +28,7 @@
     </tr>
     <tr>
       <td colspan="2" align="center" bgcolor="#CCCCCC">
-        <a href ="index.php"class="btn btn-outline-info btn-md " type="button" name="login" id="login" >登入頁</a>
+        <input class="btn btn-outline-info btn-md " type="button" name="login" id="login" value ="登入頁" />
         <input class="btn btn-outline-info btn-md " type="reset" name="btnReset" id="btnReset" value="重設" />
         <input class="btn btn-outline-info btn-md " type="submit" name="registerBtn" id="registerBtn" value="確認" />
       </td>
@@ -54,3 +37,31 @@
 </form>
 </body>
 </html>
+<script>
+let regular = /[a-zA-Z0-9]{6,}/;
+$(document).ready(function(){
+  $("#registerBtn").click(function(){
+    if(regular.test($("#account").val())&& regular.test($("#password").val())&& $("#Name").val()!=""){
+      $.ajax({
+        url:"php.php",
+        data:{
+          "account":$("#Account").val(),
+          "password":$("#password").val(),
+          "name":$("#Name").val()
+        },
+        type:"post"
+      }).then(function(e){
+        alert(e);
+        document.location.href="index.php";
+      })
+    }
+    
+  })
+  $("#login").click(function(){
+    document.location.href="index.php";
+  })
+
+
+})
+
+</script>
