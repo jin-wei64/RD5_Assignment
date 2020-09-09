@@ -64,22 +64,28 @@ $(document).ready(function(){
                     $('<input  style= " width:20px;height:20px "id="check" type="checkBox">')
                 )
             }
-            $("#td").append(
-                $('<font id = "h3" size="6px"></font>').text("$"+obj[0][0].total),
-                $('<input  style= " width:20px;height:20px "id="check" type="checkBox">')
-            )
+            else{
+                $("#td").append(
+                    $('<font id = "h3" size="6px"></font>').text("$"+obj[0][0].total),
+                    $('<input  style= " width:20px;height:20px "id="check" type="checkBox">')
+                )
+            }
             $("#check").click(function(){
-            var isChecked = $("#check").prop("checked")
-            if(isChecked == true)
-                $("#h3").text("********");
-            else
-                $("#h3").text("$"+obj[0][0].total);    
-        })          
+                var isChecked = $("#check").prop("checked")
+                if(isChecked == true)
+                    $("#h3").text("********");
+                else{
+                    if(obj[0]== ""){
+                        $("#h3").text("$"+0);  
+                    }else{
+                        $("#h3").text("$"+obj[0][0].total);  
+                    }
+                }
+                      
+            })          
         }
         total();
-        $("#usermoney").click(function(){
-            total();
-        });
+        $("#usermoney").click(total);
         $("#details").click(function(){
             $("#td").empty();
             $("#month").remove();
