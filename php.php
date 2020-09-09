@@ -43,7 +43,7 @@
         while($timerecord = mysqli_fetch_assoc($timeresult )){
             $array[] = $timerecord;
         }
-        $monthrecordsql = "select * from record where date(`time`) BETWEEN date_sub(curdate(),interval 60 day) and date_sub(curdate(),interval 30 day) and userID =  $userID order by time desc";
+        $monthrecordsql = "select * from record where date(`time`) BETWEEN date_sub(curdate(),interval 30 day) and date_sub(curdate(),interval 0 day) and userID =  $userID order by time desc";
         $monthresult = mysqli_query($link,$monthrecordsql);
         while($monthrecord = mysqli_fetch_assoc($monthresult )){
             $array2[] = $monthrecord;

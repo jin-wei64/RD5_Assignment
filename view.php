@@ -1,31 +1,3 @@
-<?php 
-session_start();
-require("config.php");
-$userID = $_GET["id"];
-$toatlSql = "select userID, money, time, total from record where userID = '$userID' order by time desc";
-$totalMoney = mysqli_fetch_assoc(mysqli_query($link,$toatlSql));
-$total = $totalMoney['total'];
-if (isset($_SESSION["userName"]))
-  $userName =$_SESSION["userName"];
-if(isset($_POST["savebtn"])){
-  $savemoney = $_POST["savetext"];
-  $total += $savemoney ;  
-  $saveSql = "insert into record (userID, money,total)values('$userID', '$savemoney','$total')";
-  mysqli_query($link , $saveSql);
-}
-if(isset($_POST["outbtn"])){
-  $outmoney = $_POST["outtext"];
-  $_SESSION["total"] = $total ;
-  if ($total > $outmoney) {
-    $total -= $outmoney;
-    $outSql = "insert into record (userID, money,total)values('$userID', '-$outmoney','$total')";
-    mysqli_query($link , $outSql);
-  }
-}
-$timerecordsql = "select recordID,userID, money, time, total from record where userID = '$userID' order by time desc";
-$timeresult = mysqli_query($link,$timerecordsql);
-?>
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
@@ -34,91 +6,197 @@ $timeresult = mysqli_query($link,$timerecordsql);
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-<title>Lab - index</title>
+<title>VIEW</title>
 </head>
 
 <body>
 <form method = "post">
 <table width="300" border="0" align="center" cellpadding="5" cellspacing="0" bgcolor="#F2F2F2">
   <tr>
-    <td align="center" bgcolor="#CCCCCC"><font size="5" ><?= "Welcome! " . $userName ?> </font>
-      <a class="btn btn-outline-info btn-sm float-right " href="index.php?logout=1">登出</a>
+    <td id = "titleID" align="center" bgcolor="#CCCCCC"><font id = "title" size="5" > </font>
+      <a class="btn btn-outline-info btn-sm float-right " href="index.php">登出</a>
+      <input id = "month" type = "button" class="btn btn-outline-info btn-sm float-right" value = "Month">
     </td>
   </tr>
   <tr>
-    <td align="center" >
-      <?php if(isset($_POST["save"])) { ?>
-              <input pattern= "^[1-9]\d*|0$." type = "text" name = "savetext">
-              <button class="btn btn-outline-success btn-sm " name = "savebtn">確認</button> 
-      <?php } elseif (isset($_POST["out"])) { ?>
-              <input pattern= "^[1-9]\d*|0$." type = "text" name = "outtext">
-              <button class="btn btn-outline-dark btn-sm " name = "outbtn">確認</button> 
-      <?php } elseif (isset($_POST["details"])) { ?>
-        <div style="width:500px;height:300px;overflow-y:scroll;overflow-x:none;">
-        <table class="table table-striped">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>金額</th>
-            <th>餘額</th>
-            <th>日期</th>
-          </tr>
-        </thead>
-        <tbody>
-          <?php while ( $timerecord = mysqli_fetch_assoc($timeresult )) { ?>
-            <tr>
-              <td><?= $timerecord["recordID"] ?></td>
-              <td><?= $timerecord["money"] ?></td>
-              <td><?= $timerecord["total"] ?></td>
-              <td><?= $timerecord["time"] ?></td>
-            </tr>
-          <?php } ?>
-        </tbody>
-        </table>
-        </div>
-      <?php } else { ?>
-            <font id = "h3" size="6px" >$<?= $total ?></font>
-            <input  style= " width:20px;height:20px "id="check" type="checkBox" >
-      <?php } ?>
+    <td id = "td" align="center" >
     </td>
   </tr>
   <tr>
     <td align="center" bgcolor="#CCCCCC">
     
-      <input name = "save" type = "submit" class="btn btn-outline-info btn-sm " value = "存款" >｜</input> 
-      <input name = "out" type = "submit" class="btn btn-outline-info btn-sm " value = "提款" >｜</input> 
-      <input name = "details" type = "submit" class="btn btn-outline-info btn-sm " value = "歷史明細" >｜</input> 
-      <input name = "usermoney" type = "submit" class="btn btn-outline-info btn-sm " value = "餘額" ></input> 
+      <input id = "save" name = "save" type = "button" class="btn btn-outline-info btn-sm " value = "存款" >｜</input> 
+      <input id = "out" name = "out" type = "button" class="btn btn-outline-info btn-sm " value = "提款" >｜</input> 
+      <input id = "details" name = "details" type = "button" class="btn btn-outline-info btn-sm " value = "歷史明細" >｜</input> 
+      <input id = "usermoney" name = "usermoney" type = "button" class="btn btn-outline-info btn-sm " value = "餘額" ></input> 
     
     </td>
     
   </tr>
 </table>
 </form>
-
 </body>
-<script>
-if('<?=isset($_POST["outbtn"])?>'){
-  if('<?= $_SESSION["total"] >= $outmoney ?>') {
-    alert("本次提款金額：<?= $outmoney  ?>"+",餘額：<?= $total ?>" );    
-  }
-  if('<?= $_SESSION["total"] < $outmoney  ?>') {
-    alert("餘額不足");
-  }
-}
-if('<?= isset($_POST["savebtn"])?>'){
-  alert("本次存款金額：<?= $savemoney ?>"+",餘額：<?= $total ?>" );
-}
-
-$("#check").click(function(){
-  var isChecked = $("#check").prop("checked")
-  if(isChecked == true)
-    $("#h3").text("********");
-  else
-    $("#h3").text('$'+<?= $total ?>);
-})
-
-
-// console.log(a);
-</script>
 </html>
+<script>
+let regular = /^[1-9]\d*|0$./;
+$(document).ready(function(){
+    
+    var getUrlString = location.href;
+    var url = new URL(getUrlString);
+    let a = url.searchParams.get('id');
+    let obj ;
+    $.ajax({
+        url:"php.php",
+        type:"post",
+        data:{
+            "id":a
+        }
+    }).then(function(e){
+        obj = JSON.parse(e);
+        $("#title").text("Welcome !" +" " +obj[1]  )
+        let total = function(){
+            $("#td").empty();
+            $("#month").remove();
+            $("#week").remove();
+            if(obj[0] == ""){
+                $("#td").append(
+                    $('<font id = "h3" size="6px"></font>').text("$"+ 0),
+                    $('<input  style= " width:20px;height:20px "id="check" type="checkBox">')
+                )
+            }
+            else{
+                $("#td").append(
+                    $('<font id = "h3" size="6px"></font>').text("$"+obj[0][0].total),
+                    $('<input  style= " width:20px;height:20px "id="check" type="checkBox">')
+                )
+            }
+            $("#check").click(function(){
+                var isChecked = $("#check").prop("checked")
+                if(isChecked == true)
+                    $("#h3").text("********");
+                else{
+                    if(obj[0]== ""){
+                        $("#h3").text("$"+0);  
+                    }else{
+                        $("#h3").text("$"+obj[0][0].total);  
+                    }
+                }
+                      
+            })          
+        }
+        total();
+        $("#usermoney").click(total);
+        $("#details").click(function(){
+            $("#td").empty();
+            $("#month").remove();
+            $("#week").remove();
+            $("#tbody").empty();
+            $("#titleID").append(
+                $('<input id = "month" type = "button" name = "month" class="btn btn-outline-success btn-sm float-right " value = "Month">'),
+                $('<input id = "week" type = "button" name = "week" class="btn btn-outline-danger btn-sm float-right" value = "Week">')
+            )
+            $("#td").append(
+                $('<div style="width:500px;height:200px;overflow-y:scroll;overflow-x:none;"></div>').append(
+                    $('<table class="table table-striped"></table>').append(
+                        $("<thead></thead>").append(
+                            $("<tr></tr>").append(
+                                $("<th></th>").text("ID"),
+                                $("<th></th>").text("金額"),
+                                $("<th></th>").text("餘額"),
+                                $("<th></th>").text("日期"),
+                            )
+                        ),
+                        $('<tbody id = "tbody"></tbody>')
+                    )
+                )
+            )
+            for(let i = 0;i<obj[0].length;i++){
+                $("#tbody").append(
+                    $("<tr></tr>").append(
+                        $("<td></td>").text(obj[0][i].recordID),
+                        $("<td></td>").text(obj[0][i].money),
+                        $("<td></td>").text(obj[0][i].total),
+                        $("<td></td>").text(obj[0][i].time)
+                    )
+                )
+            }
+            $("#month").click(function(){
+                $("#tbody").empty();
+                for(let i = 0;i<obj[2].length;i++){
+                    $("#tbody").append(
+                        $("<tr></tr>").append(
+                            $("<td></td>").text(obj[2][i].recordID),
+                            $("<td></td>").text(obj[2][i].money),
+                            $("<td></td>").text(obj[2][i].total),
+                            $("<td></td>").text(obj[2][i].time)
+                        )
+                    )
+                }
+            })
+            $("#week").click(function(){
+                $("#tbody").empty();
+                for(let i = 0;i<obj[3].length;i++){
+                    $("#tbody").append(
+                        $("<tr></tr>").append(
+                            $("<td></td>").text(obj[3][i].recordID),
+                            $("<td></td>").text(obj[3][i].money),
+                            $("<td></td>").text(obj[3][i].total),
+                            $("<td></td>").text(obj[3][i].time)
+                        )
+                    )
+                }
+            })
+            
+        })
+
+        
+    })
+    $("#save").click(function(){
+        $("#td").empty();
+        $("#week").remove();
+        $("#month").remove();
+        $("#td").append(
+            $(`<input id = "saveText" type = "text" name = "savetext" pattern= ${/^[1-9]\d*|0$./} required >`),
+            $('<button id ="saveBtn" class="btn btn-outline-success btn-sm " name = "savebtn">確認</button>')
+        )
+        $("#saveBtn").click(function(){
+            if(regular.test($("#saveText").val())){   
+                $.ajax({
+                    url:"php.php",
+                    type:"post",
+                    data:{
+                        "saveMoney":`${$("#saveText").val()}`  
+                    }
+                }).then(function(e){
+                    alert(e);
+                    document.location.href=`view.php?id=${a}`;
+                })
+            }
+        })
+    })
+    $("#out").click(function(){
+        $("#td").empty();
+        $("#week").remove();
+        $("#month").remove();
+        $("#td").append(
+            $(`<input id = "outText" pattern= ${/^[1-9]\d*|0$./} type = "text" name = "outtext" required>`),
+            $('<button id ="outBtn" class="btn btn-outline-dark btn-sm " name = "outbtn">確認</button>')
+        )
+        $("#outBtn").click(function(){
+            if(regular.test($("#outText").val())){
+                $.ajax({
+                    url:"php.php",
+                    type:"post",
+                    data:{
+                        "outMoney":`${$("#outText").val()}`  
+                    }
+                }).then(function(e){           
+                    alert(e);
+                    document.location.href=`view.php?id=${a}`;
+                })
+            }
+        })
+    })
+})
+    
+</script>
