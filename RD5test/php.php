@@ -3,14 +3,21 @@
     require("config.php");
     if(isset($_POST["account"])){
         $regeisteredAccount = $_POST["account"];
-        $regeisteredPassword = $_POST["password"];
-        $regeisteredName = $_POST["name"];
-        $sql = "                     
-        insert into users(userAccount,userPassword,userName) 
-        values('$regeisteredAccount','$regeisteredPassword','$regeisteredName')
-        ";
-        mysqli_query($link, $sql);
-        echo "註冊成功";
+        $check = "select userAccount from users where userAccount = '$regeisteredAccount' ";
+        $checkrow = mysqli_query($link, $check);
+        $a = mysqli_fetch_assoc($checkrow);
+        if ( $a!= null){
+            echo "已有此帳號";
+        }else{
+            $regeisteredPassword = $_POST["password"];
+            $regeisteredName = $_POST["name"];
+            $sql = "                     
+            insert into users(userAccount,userPassword,userName) 
+            values('$regeisteredAccount','$regeisteredPassword','$regeisteredName')
+            ";
+            mysqli_query($link, $sql);
+            echo "註冊成功";
+        }
     }
     if(isset($_POST['loginAccount'])){
         $loginAccount = $_POST['loginAccount'];
@@ -54,16 +61,6 @@
         $b[] = $array3;
         echo json_encode($b);
     }
-    // if(isset($_POST['month'])){
-    //     $array2 = [];
-    //     $userID = $_POST['month'] ;
-    //     $monthrecordsql = "select * from record where date(`time`) BETWEEN date_sub(curdate(),interval 2 day) and date_sub(curdate(),interval 1 day) and userID =  $userID order by time desc";
-    //     $monthresult = mysqli_query($link,$monthrecordsql);
-    //     while($monthrecord = mysqli_fetch_assoc($monthresult )){
-    //         $array2[] = $monthrecord;
-    //     }
-    //     echo json_encode($array);
-    // }
     if(isset($_POST['saveMoney'])){
         $savemoney = $_POST["saveMoney"];
         $userID = $_SESSION["id"];
