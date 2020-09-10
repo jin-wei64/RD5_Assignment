@@ -1,5 +1,4 @@
 <?php
-    session_start();
     require("config.php");
     if(isset($_POST["account"])){
         $regeisteredAccount = $_POST["account"];
@@ -26,7 +25,6 @@
         multi;
         $Accountresult = mysqli_query($link, $sqlAccount);
         $Accountrow = mysqli_fetch_assoc($Accountresult);
-        $_SESSION['name'] = $Accountrow['userName'];
         echo json_encode($Accountrow);
     }
     if(isset($_POST['id'])){
@@ -34,9 +32,8 @@
         $array3 = [];
         $array = [];
         $b = [];
-        $_SESSION["id"] = $_POST["id"];
-        $userID = $_SESSION["id"] ;
-        $timerecordsql = "select u.userName as name ,recordID,r.userID, money, time, total from record as r 
+        $userID = $_POST["id"];
+        $timerecordsql = "select u.userName as name ,recordID,r.userID, money, time, total,type from record as r 
         JOIN users as u 
         on u.userID = r.userID where r.userID = '$userID' order by time desc";
         $timeresult = mysqli_query($link,$timerecordsql);
@@ -53,8 +50,6 @@
         while($weekrecord = mysqli_fetch_assoc($weekresult )){
             $array3[] = $weekrecord;
         }
-        $_SESSION['total'] = $array[0]["total"];
-        $name = $_SESSION['name'];
         $b[] = $array ;
         $b[] = $name;
         $b[] = $array2;
@@ -63,26 +58,65 @@
     }
     if(isset($_POST['saveMoney'])){
         $savemoney = $_POST["saveMoney"];
-        $userID = $_SESSION["id"];
-        $total = $_SESSION['total'];
+        $userID =$_POST['userID'];
+        $timerecordsql = "select total from record where userID = '$userID' order by time desc";
+        $timeresult = mysqli_query($link,$timerecordsql);
+        $timerecord = mysqli_fetch_assoc($timeresult);
+        $total = $timerecord['total'];
         $total += $savemoney ;  
-        $saveSql = "insert into record (userID, money,total)values('$userID', '$savemoney','$total')";
+        $saveSql = "insert into record (userID, money,total,type)values('$userID', '$savemoney','$total','In')";
         mysqli_query($link , $saveSql);
         echo "本次存款 : ".$savemoney."  "."剩餘：".$total;
     }
     if(isset($_POST["outMoney"])){
         $outmoney = $_POST["outMoney"];
-        $total = $_SESSION['total'];
-        $userID = $_SESSION["id"];
+        $userID =$_POST['userID'];
+        $timerecordsql = "select total from record where userID = '$userID' order by time desc";
+        $timeresult = mysqli_query($link,$timerecordsql);
+        $timerecord = mysqli_fetch_assoc($timeresult);
+        $total = $timerecord['total'];
         if ($total >= $outmoney) {
             $total -= $outmoney;
-            $outSql = "insert into record (userID, money,total)values('$userID', '-$outmoney','$total')";
+            $outSql = "insert into record (userID, money,total,type)values('$userID', '-$outmoney','$total','Out')";
             mysqli_query($link , $outSql);
             echo "本次提款 : ".$outmoney."  "."剩餘：".$total;
         }
         else{
             echo "餘額不足";
         }
+    }
+    if( isset($_POST['targetAccount']) && isset($_POST['transfer']) ){
+        $transferMoney = $_POST['transfer'];
+        $targetAccont = $_POST['targetAccount'];
+        //Oneself start
+        $userID =$_POST['userID'];
+        $OneselfRecordsql = "select u.userAccount,total ,r.userID from record as r JOIN users as u on u.userID = r.userID where r.userID = '$userID' order by time desc";
+        $OneselfRecord = mysqli_fetch_assoc(mysqli_query($link,$OneselfRecordsql));
+        $OneselfRecordTotal = $OneselfRecord['total'];
+        if ($OneselfRecordTotal >= $transferMoney) {
+            $OneselfRecordTotal -= $transferMoney;
+            $typeOut = "To:".$targetAccont;
+            $outSql = "insert into record (userID, money,total,type)values('$userID', '-$transferMoney','$OneselfRecordTotal','$typeOut')";
+            //Oneself end
+             //target start
+            $targetSql = "select userID from users where userAccount = '$targetAccont' ; ";
+            $targetRow = mysqli_fetch_assoc(mysqli_query($link,$targetSql));
+            $targetUserID = $targetRow['userID'];
+            $targetRecordsql = "select total from record where userID = '$targetUserID' order by time desc";
+            $targetRecord = mysqli_fetch_assoc(mysqli_query($link,$targetRecordsql));
+            $TargetTotal = $targetRecord['total'];
+            $TargetTotal += $transferMoney ;
+            $typeIn = "From:".$OneselfRecord['userAccount'];
+            $transferSql = "insert into record (userID, money,total,type)values('$targetUserID', '$transferMoney','$TargetTotal','$typeIn')";
+            mysqli_query($link , $outSql);
+            mysqli_query($link , $transferSql);
+            //target end
+            echo "本次轉出 : ".$transferMoney."  "."剩餘：".$OneselfRecordTotal;
+        }
+        else{
+            echo "餘額不足";
+        }
+     
     }
 
 ?>
