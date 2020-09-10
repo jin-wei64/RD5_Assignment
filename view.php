@@ -74,7 +74,7 @@ $(document).ready(function(){
         }
     }).then(function(e){
         obj = JSON.parse(e);
-        $("#title").text("Welcome !" +" " +obj[0][0].name  )
+        $("#title").text("Welcome !" +" " +obj[1])
         let total = function(){
             $("#td").empty();
             $("#month").remove();

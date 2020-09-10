@@ -37,6 +37,9 @@
         JOIN users as u 
         on u.userID = r.userID where r.userID = '$userID' order by time desc";
         $timeresult = mysqli_query($link,$timerecordsql);
+        $getName = "select * from users where userID = $userID " ;
+        $getNamerow = mysqli_fetch_assoc(mysqli_query($link,$getName));
+        $name = $getNamerow['userName'];
         while($timerecord = mysqli_fetch_assoc($timeresult )){
             $array[] = $timerecord;
         }
@@ -92,7 +95,7 @@
         $userID =$_POST['userID'];
         $OneselfRecordsql = "select u.userAccount,total ,r.userID from record as r JOIN users as u on u.userID = r.userID where r.userID = '$userID' order by time desc";
         $OneselfRecord = mysqli_fetch_assoc(mysqli_query($link,$OneselfRecordsql));
-        $OneselfRecordTotal = $OneselfRecord['total'];
+        $OneselfRecordTotal = $OneselfRecord['total']; 
         if ($OneselfRecordTotal >= $transferMoney) {
             $OneselfRecordTotal -= $transferMoney;
             $typeOut = "To:".$targetAccont;
