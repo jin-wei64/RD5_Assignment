@@ -1,6 +1,6 @@
 create database netbank default character set uft8;
-create table users (userId int AUTO_INCREMENT PRIMARY key,userAccount varchar(15),userPassword varchar(15));
-create table record(recordID int AUTO_INCREMENT PRIMARY KEY,userID int,money int);
+create table users (userID int AUTO_INCREMENT PRIMARY key,userName varchar(30),userAccount varchar(15),userPassword varchar(15));
+create table record(recordID int AUTO_INCREMENT PRIMARY KEY,userID int,money int,type varchar(30),total int ,time timestamp );
 
 alter table record add constraint fk_userID 
 foreign key (userID)references users (userID) 
